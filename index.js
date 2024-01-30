@@ -3,7 +3,7 @@ console.info("starting...");
 
 const MAX_COMMENTS = 200;
 
-async function scrapeIP() {
+async function startProcess() {
     console.info("launching browser..")
     const browser = await puppeteer.launch({headless: false});
     const page = await browser.newPage();
@@ -33,14 +33,12 @@ async function scrapeIP() {
 
         let comments = await commentsContainer.$$("div[class='comment-text'] p");
 
-        while(comments.length < 200) {
+        while(comments.length < 200) { // fetch top 200 comments per rating
             await new Promise(resolve => setTimeout(resolve, 500));
 
             await page.evaluate(() => {
                 window.scrollTo(0, window.document.getElementsByClassName("reviews-content")[0].scrollHeight);
             });
-
-            console.info(await page.evaluate(el => el.textContent, comments[0]))
 
             comments = await commentsContainer.$$("div[class='comment-text'] p");
         }
@@ -62,7 +60,9 @@ async function scrapeIP() {
         index--;
     }
 
+    console.info("total comments: " + commentArr.length);
+
     await browser.close();
 }
 
-scrapeIP();
+startProcess();
